@@ -1,0 +1,43 @@
+{
+  "apiVersion": 1,
+  "id": "imgur-upload",
+  "name": "Upload to Imgur",
+  "names": {
+    "zh-CN": "上传到 Imgur",
+    "zh-HK": "上傳至 Imgur",
+    "zh-TW": "上傳至 Imgur",
+    "ar": "رفع إلى Imgur",
+    "fr": "Envoyer vers Imgur",
+    "fr-CA": "Téléverser sur Imgur",
+    "ru": "Загрузить на Imgur",
+    "es": "Subir a Imgur",
+    "es-419": "Subir a Imgur",
+    "pt-BR": "Enviar para o Imgur",
+    "pt-PT": "Enviar para o Imgur"
+  },
+  "modes": [
+    "selection",
+    "viewer"
+  ],
+  "permissions": [
+    "media.upload"
+  ],
+  "networkOrigins": [
+    "https://api.imgur.com"
+  ],
+  "version": "1.0.0",
+  "description": "Upload selected images to Imgur and show their links.",
+  "descriptions": {
+    "zh-CN": "上传所选图片到 Imgur 并显示链接。",
+    "zh-HK": "將所選圖片上傳至 Imgur 並顯示連結。",
+    "zh-TW": "將所選圖片上傳至 Imgur 並顯示連結。",
+    "ar": "رفع الصور المحددة إلى Imgur وعرض روابطها.",
+    "fr": "Envoyer les images sélectionnées vers Imgur et afficher leurs liens.",
+    "fr-CA": "Téléverser les images sélectionnées sur Imgur et afficher leurs liens.",
+    "ru": "Загрузить выбранные изображения на Imgur и показать ссылки.",
+    "es": "Subir las imágenes seleccionadas a Imgur y mostrar sus enlaces.",
+    "es-419": "Subir las imágenes seleccionadas a Imgur y mostrar sus enlaces.",
+    "pt-BR": "Enviar as imagens selecionadas para o Imgur e mostrar os links.",
+    "pt-PT": "Enviar as imagens selecionadas para o Imgur e mostrar as ligações."
+  }
+}

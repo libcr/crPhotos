@@ -1,0 +1,38 @@
+{
+  "apiVersion": 1,
+  "id": "media-summary",
+  "name": "Media Summary",
+  "names": {
+    "zh-CN": "媒体摘要",
+    "zh-HK": "媒體摘要",
+    "zh-TW": "媒體摘要",
+    "ar": "ملخص الوسائط",
+    "fr": "Résumé des médias",
+    "fr-CA": "Résumé des médias",
+    "ru": "Сводка медиафайлов",
+    "es": "Resumen de archivos multimedia",
+    "es-419": "Resumen de archivos multimedia",
+    "pt-BR": "Resumo de mídia",
+    "pt-PT": "Resumo dos ficheiros multimédia"
+  },
+  "modes": [
+    "selection",
+    "viewer"
+  ],
+  "permissions": [],
+  "version": "1.0.0",
+  "description": "Summarize the selected photos and videos.",
+  "descriptions": {
+    "zh-CN": "汇总所选照片和视频。",
+    "zh-HK": "彙整所選相片和影片。",
+    "zh-TW": "彙整所選相片和影片。",
+    "ar": "تلخيص الصور ومقاطع الفيديو المحددة.",
+    "fr": "Résumer les photos et vidéos sélectionnées.",
+    "fr-CA": "Résumer les photos et vidéos sélectionnées.",
+    "ru": "Сводка выбранных фотографий и видео.",
+    "es": "Resumir las fotos y los vídeos seleccionados.",
+    "es-419": "Resumir las fotos y los videos seleccionados.",
+    "pt-BR": "Resumir as fotos e os vídeos selecionados.",
+    "pt-PT": "Resumir as fotografias e os vídeos selecionados."
+  }
+}

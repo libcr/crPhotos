@@ -1,0 +1,41 @@
+{
+  "apiVersion": 1,
+  "id": "archive-as-zip",
+  "version": "1.0.0",
+  "name": "Archive as zip",
+  "names": {
+    "zh-CN": "压缩为 ZIP",
+    "zh-HK": "壓縮為 ZIP",
+    "zh-TW": "壓縮為 ZIP",
+    "ar": "ضغط بصيغة ZIP",
+    "fr": "Compresser en ZIP",
+    "fr-CA": "Compresser en ZIP",
+    "ru": "Сжать в ZIP",
+    "es": "Comprimir en ZIP",
+    "es-419": "Comprimir en ZIP",
+    "pt-BR": "Compactar em ZIP",
+    "pt-PT": "Comprimir em ZIP"
+  },
+  "description": "Save selected photos and videos in a ZIP archive.",
+  "descriptions": {
+    "zh-CN": "将所选照片和视频保存到 ZIP 压缩包。",
+    "zh-HK": "將所選相片和影片儲存到 ZIP 壓縮檔。",
+    "zh-TW": "將所選相片和影片儲存到 ZIP 壓縮檔。",
+    "ar": "حفظ الصور ومقاطع الفيديو المحددة في أرشيف ZIP.",
+    "fr": "Enregistrer les photos et vidéos sélectionnées dans une archive ZIP.",
+    "fr-CA": "Enregistrer les photos et vidéos sélectionnées dans une archive ZIP.",
+    "ru": "Сохранить выбранные фотографии и видео в ZIP-архив.",
+    "es": "Guardar las fotos y los vídeos seleccionados en un archivo ZIP.",
+    "es-419": "Guardar las fotos y los videos seleccionados en un archivo ZIP.",
+    "pt-BR": "Salvar as fotos e os vídeos selecionados em um arquivo ZIP.",
+    "pt-PT": "Guardar as fotografias e os vídeos selecionados num ficheiro ZIP."
+  },
+  "ui": "dialog",
+  "modes": [
+    "selection",
+    "viewer"
+  ],
+  "permissions": [
+    "archive.write"
+  ]
+}

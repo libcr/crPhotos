@@ -1,0 +1,41 @@
+{
+  "apiVersion": 1,
+  "id": "copy-file-path",
+  "version": "1.1.0",
+  "name": "Copy File Path",
+  "names": {
+    "zh-CN": "复制文件路径",
+    "zh-HK": "複製檔案路徑",
+    "zh-TW": "複製檔案路徑",
+    "ar": "نسخ مسار الملف",
+    "fr": "Copier le chemin du fichier",
+    "fr-CA": "Copier le chemin du fichier",
+    "ru": "Копировать путь к файлу",
+    "es": "Copiar ruta del archivo",
+    "es-419": "Copiar ruta del archivo",
+    "pt-BR": "Copiar caminho do arquivo",
+    "pt-PT": "Copiar caminho do ficheiro"
+  },
+  "description": "Copy the full paths of selected files to the clipboard without opening a dialog.",
+  "descriptions": {
+    "zh-CN": "将所选文件的完整路径复制到剪贴板，不显示对话框。",
+    "zh-HK": "將所選檔案的完整路徑複製到剪貼簿，不顯示對話框。",
+    "zh-TW": "將所選檔案的完整路徑複製到剪貼簿，不顯示對話框。",
+    "ar": "نسخ المسارات الكاملة للملفات المحددة إلى الحافظة دون عرض مربع حوار.",
+    "fr": "Copier les chemins complets des fichiers sélectionnés dans le presse-papiers sans ouvrir de boîte de dialogue.",
+    "fr-CA": "Copier les chemins complets des fichiers sélectionnés dans le presse-papiers sans ouvrir de boîte de dialogue.",
+    "ru": "Копировать полные пути выбранных файлов в буфер обмена без диалогового окна.",
+    "es": "Copiar las rutas completas de los archivos seleccionados al portapapeles sin abrir un diálogo.",
+    "es-419": "Copiar las rutas completas de los archivos seleccionados al portapapeles sin abrir un diálogo.",
+    "pt-BR": "Copiar os caminhos completos dos arquivos selecionados para a área de transferência sem abrir uma caixa de diálogo.",
+    "pt-PT": "Copiar os caminhos completos dos ficheiros selecionados para a área de transferência sem abrir uma caixa de diálogo."
+  },
+  "ui": "none",
+  "modes": [
+    "selection",
+    "viewer"
+  ],
+  "permissions": [
+    "clipboard.write"
+  ]
+}
