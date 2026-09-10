@@ -20,7 +20,26 @@ Open **Settings → Library** to add folders. Each folder appears immediately, w
 
 Folder choices persist between sessions. Folder monitoring picks up newly added media, and a scan-completion toast reports progress. On first use, the setup page offers default media folders; review the list and choose **Done** to start browsing.
 
-Use filename search and **Filter media** to narrow the view by media type, library folder, or **Starred**. Filter menus stay open while you make multiple choices.
+Use the top search field and **Filter media** to narrow the view by media type, library folder, or **Starred**, or open **Trash**. Filter menus stay open while you make multiple choices.
+
+## Search by metadata and location
+
+Search file names and readable embedded metadata, including camera or phone model, lens, capture date, ISO, exposure, aperture, and focal length. Known dimensions, GPS coordinates, and approximate city, province/state, and country names are searchable too. This searches metadata, not text inside screenshots or photos.
+
+| Input | Matches |
+| --- | --- |
+| `han` | Word prefixes such as Hangzhou, rather than the middle of Shanghai or Shang |
+| `hangzhou` or `杭州` | Media whose GPS resolves to Hangzhou, or whose other searchable fields match |
+| `Pixel8` | Device names such as Google Pixel 8, including Pixel 8 Pro |
+| `Pixel` | Pixel models across generations |
+| `Pixel8 hangzhou` | Items matching both the device and location terms |
+| `2026-09-10` | Matching capture or catalog dates |
+
+Matching ignores case. English terms match word prefixes, while Chinese and numeric terms use substring matching. Spaces within a field can be skipped, so `Pixel8` matches `Pixel 8`. Separate query terms must all match, but can match different fields. A catalog date may come from a file timestamp when an embedded capture date is unavailable.
+
+Place search includes English and all bundled translations, independently of the interface language. City matching requires embedded GPS and uses the approximate offline lookup described below; missing GPS does not prevent searches by other metadata.
+
+The local search index is built in background batches. On first use, results fill in as indexing completes; subsequent sessions reuse the saved index. File size or modification-time changes and index-format upgrades trigger reindexing. Typing does not read original media files or send online requests. Trash metadata is read during its background load.
 
 ## Enjoy photos and videos in one viewer
 
@@ -70,6 +89,33 @@ Configure nearby sharing in Settings to discover devices on the local network or
 
 The **Trusted devices** window lists remembered devices and transfer statistics. It is modal to the main window; close it to resume browsing. The red delete icon forgets a device's trusted status.
 
+## Extend crPhotos
+
+Local JavaScript extensions add actions to the selection toolbar after **Share** and to the photo/video right-click menu. Each extension can support selection mode, viewer mode, or both. Selection extensions are not shown in the Trash toolbar.
+
+Open **Settings → Extensions** and click **+ Add Extension**, then choose an unpacked extension folder containing `manifest.json` and `main.js`. The application validates and copies the package into its local extension directory. Extensions are not installed automatically.
+
+Each list item shows its icon, name, version, description, enable toggle, and configuration gear. Drag the left handle to reorder extensions; the saved order also applies to the selection toolbar, overflow menu, and viewer menu. Right-click an item and choose **Delete this extension** to remove the installed package and its configuration. The gear opens a JSON configuration editor; **Save** becomes available after an edit.
+
+Extensions can use a native processing dialog with media previews, progress, and text output. Double-click an output line associated with a file to select that line and enlarge its preview. **Cancel** stops pending work; the button changes to **Done** when processing finishes. Extensions can also run without a dialog and show a short completion toast.
+
+The source tree provides these example packages under `crPhotos/extensions/examples/`:
+
+| Extension | Purpose |
+| --- | --- |
+| Copy File Path | Copies selected file paths without opening a dialog and shows a completion toast, such as “2 files copied”, for about three seconds |
+| Archive as zip | Saves selected originals into a ZIP at a location chosen in a native Save dialog, with progress and cancellation |
+| Upload to Imgur | Uploads supported original files through HTTPS, with progress and returned links; requires your own API configuration |
+| Media Summary | Demonstrates metadata processing and dialog output |
+
+Archive as zip creates a new archive or replaces the chosen destination after successful compression; it does not append to an existing ZIP. Duplicate file names receive numeric suffixes. It needs no network access or account.
+
+The Imgur example accepts a Client ID or an existing OAuth access token. It does not provide an OAuth login or token-refresh flow. Credentials are stored locally in plaintext `config.json`. Uploads include original embedded metadata; cancelling cannot remove uploads already accepted by the service.
+
+For extension developers, the host uses V8 with a crPhotos-specific API. It supports declared permissions for selected-file access, HTTPS requests, POST/PUT uploads with progress, clipboard file paths, and saving ZIP archives. This is not a Chrome extension or Node.js environment: HTML/DOM, arbitrary shell commands, and arbitrary filesystem writes are not exposed. SVG icons and localized names, descriptions, and output are supported. See `crPhotos/extensions/README.md` in the source tree for the API and package format.
+
+Default installation directories are `~/.config/crPhotos/extensions/` on Linux and `%LOCALAPPDATA%\crPhotos\extensions\` on Windows. An alternative directory can be selected with `--extensions-dir=/absolute/path/to/extensions`.
+
 ## Appearance and desktop integration
 
 Choose system, light, or dark appearance. The interface supports English plus Simplified Chinese, Traditional Chinese (Hong Kong and Taiwan), Arabic, French (France and Canada), Russian, Spanish (Spain and Latin America), and Portuguese (Brazil and Portugal).
@@ -90,5 +136,13 @@ The static single-image path supports container rotation, mirroring, cropping, c
 - **Windows x64:** requires a compatible `heif.dll` and its decoder dependencies alongside the application. A package may omit this optional runtime.
 
 Missing HEIC dependencies leave other supported formats available. The decoder bounds input to 128 MiB, 64 million pixels, and 16384 pixels per dimension. Multi-image collection browsing and animated HEIC sequences are not supported. Video codec availability depends on the decoders included in the build and available on the device.
+
+## Run a Linux release
+
+Extract the complete ZIP into a stable directory and run `./crPhotos` from that directory. Keep the executable together with its resource PAKs, `icudtl.dat`, `snapshot_blob.bin`, graphics libraries, and `crphotos_resources/` directory. The V8 snapshot must come from the same build as the application; it is required when running JavaScript extensions.
+
+The Linux archive is not a fully self-contained distribution. It uses system libraries for the desktop, fonts, graphics, audio, and networking, including GLib/GIO, NSS/NSPR, ATK, Pango/Cairo, X11/XCB, xkbcommon, GBM, D-Bus, and ALSA. HEIC additionally needs the runtime described above. Supported codecs and GPU acceleration depend on the installed environment.
+
+Example extension folders must be obtained separately if they are not included in the release archive. Install each unpacked package through **Settings → Extensions**. The executable alone does not install example extensions or configure upload credentials.
 
 This README describes the current source implementation; available features depend on the version and runtime dependencies of the package you use.
