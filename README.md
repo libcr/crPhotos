@@ -2,6 +2,8 @@
 
 A desktop photo and video browser for your local folders, built on Chromium 150. Explore your collection in a masonry timeline, view photos and videos in one application, organize media with favorites, color tags and local face grouping, and select text directly in photos.
 
+Get crPhotos for Windows from the [Microsoft Store](https://apps.microsoft.com/store/detail/9NQL7VPP88ZJ?cid=DevShareMCLPCS).
+
 ## Your collection, at a glance
 
 Browse portrait photos, landscape shots, screenshots, and videos together in an aspect-ratio-aware grid. Adjust **Grid Size** from two to six columns to choose between larger previews and a denser overview.
