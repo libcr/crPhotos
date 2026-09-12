@@ -1,6 +1,6 @@
 # crPhotos
 
-A desktop photo and video browser for your local folders, built on Chromium 150. Explore your collection in a masonry timeline, view photos and videos in one application, and keep favorites close at hand.
+A desktop photo and video browser for your local folders, built on Chromium 150. Explore your collection in a masonry timeline, view photos and videos in one application, organize media with favorites, color tags and local face grouping, and select text directly in photos.
 
 ## Your collection, at a glance
 
@@ -20,7 +20,7 @@ Open **Settings → Library** to add folders. Each folder appears immediately, w
 
 Folder choices persist between sessions. Folder monitoring picks up newly added media, and a scan-completion toast reports progress. On first use, the setup page offers default media folders; review the list and choose **Done** to start browsing.
 
-Use the top search field and **Filter media** to narrow the view by media type, library folder, or **Starred**, or open **Trash**. Filter menus stay open while you make multiple choices.
+Use the top search field and **Filter media** to narrow the view by media type, library folder, **Starred**, or **Tagged**, or open **Trash**. Media-type, folder and Starred choices keep the filter menu open.
 
 ## Search by metadata and location
 
@@ -57,7 +57,12 @@ While playing, the bottom controls begin fading out after approximately 2.5 seco
 | Esc / Q in fullscreen | Return to window mode |
 | Space in the video player | Play or pause |
 | Space / Shift + Space in the grid | Scroll forward / backward by a page |
+| Ctrl + L | Focus the search field |
 | Ctrl + A in selection mode | Select all displayed items |
+| Alt + 1–9 in the viewer or selection mode | Assign or toggle a color tag |
+| Alt + 0 in the viewer or selection mode | Clear tags |
+| Ctrl + A with image text focused in Text Selection Mode | Select all recognized text in the current photo |
+| Ctrl + C with image text selected | Copy selected text |
 | Delete in the viewer | Delete the current item without confirmation, then show the next item |
 | Ctrl + Q in the main window | Quit |
 
@@ -75,6 +80,8 @@ Mark favorites with **Starred**, copy selected files to the clipboard, or review
 
 Open **Details** to inspect dimensions, file size, path, and available camera or video information. Supported embedded metadata includes capture time, camera/phone model, lens model, ISO, exposure time, aperture, and focal length. Android/Pixel manufacturer and model tags are supported in MP4 metadata. Missing capture fields are hidden. A copy button copies the displayed metadata and confirms with **Copied**.
 
+When identified people are available, media details shows their avatars in the upper-right area. Click an avatar to filter the library to that person’s photos and videos.
+
 ### Offline GPS and city names
 
 Details can show WGS84 latitude/longitude and the approximate city, province/state, and country. Supported sources include EXIF GPS, supported HEIC Exif metadata, and QuickTime ISO 6709 decimal-coordinate tags in MP4/MOV files.
@@ -82,6 +89,56 @@ Details can show WGS84 latitude/longitude and the approximate city, province/sta
 City lookup uses bundled **GeoNames** data and requires no online geocoding or runtime database download. It selects the nearest retained city point within 100 km; this is an approximation, not an administrative-boundary or landmark lookup. Coordinates remain available even when no city matches.
 
 Place names follow the interface language where translations are available, with fallback names otherwise. The GeoNames data is embedded in the application resource pack. Data attribution: [GeoNames](https://www.geonames.org/), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+## Color tags
+
+Use **Alt+1–9** while viewing a photo/video or selecting multiple items in the grid:
+
+| Shortcut | Color |
+| --- | --- |
+| Alt + 1 | Grey |
+| Alt + 2 | Blue |
+| Alt + 3 | Red |
+| Alt + 4 | Yellow |
+| Alt + 5 | Green |
+| Alt + 6 | Pink |
+| Alt + 7 | Purple |
+| Alt + 8 | Cyan |
+| Alt + 9 | Orange |
+
+Each media item has one color tag. Press its current color shortcut to remove the tag, or another color to replace it. For a selection, the shortcut removes that color only when every selected item already has it; otherwise it assigns the color to all selected items. **Alt+0** clears the current item’s tag or all selected items’ tags. If none has a tag, it makes no change and shows no confirmation.
+
+Changes are saved locally without modifying original files. Batch changes are saved together in one database transaction. A top-center confirmation disappears after two seconds: green for adding/replacing tags and orange for removing/clearing them. In add/remove messages, the color name appears in a matching rounded color badge with contrasting text. Trash items cannot be tagged.
+
+**Filter media → Tagged**, below **Starred**, lists only colors with at least one tagged item. Each submenu entry shows a numbered color ring, localized color name and library-wide count. Tag filters combine with search, media type, folder, Starred and person filters. Click the same color again to clear its filter or choose another color to switch.
+
+The filtered grid heading displays the numbered color ring, color name and a Back button. Back clears only the tag filter; opening media and returning keeps the filter. Removing the last library item with the active color clears that filter automatically.
+
+## Group photos and videos by person
+
+Open **People** from the titlebar menu, after **Trusted devices**, and choose **Scan media**. Face grouping is opt-in and runs locally using **YuNet**, **EdgeFace S** and **ONNX Runtime**. Images are not uploaded for recognition.
+
+The People dialog displays face groups in a grid. Click the name beneath an avatar to edit it; leaving the field saves the name. Drag one person onto another to merge them. Double-click an avatar or use **Review faces** to inspect its group. In that view, **Separate person** corrects a wrong assignment, and **Use this face** chooses and saves the group’s representative avatar.
+
+Move **Grouping strictness** toward **Loose** to combine more similar faces or toward **Strict** to require closer matches. Changes apply automatically after a short delay. The 36–100 scale defaults to 36; it is a similarity threshold, not a confidence percentage. Review automatic results: different poses, lighting, small faces and occlusion can cause missed or incorrect matches.
+
+Scanning shows progress and a periodically updated image preview. After the initial successful scan, new or modified media are scanned incrementally in the background by the same scanning service. **Clear people data** requires confirmation and removes the face index and names without deleting media; it pauses automatic scanning until another successful manual scan.
+
+Videos use up to 30 sampled frames, with five sampling positions for short clips, distributed through the clip rather than only at its beginning. Brief appearances between samples may be missed. Photos and videos belonging to a person can be shown together, and saved names are searchable in the main search field.
+
+When People data exists, an icon beside **Filter media** opens a popup of named people. Click an avatar to filter the grid. A **Clear person filter** overlay at the top of the preview area removes that filter.
+
+Keep `people-runtime/` beside the executable. Releases containing it can run face grouping on the CPU without installing Python or CUDA. Packages without the runtime still support normal browsing. The release’s `people/README.md` provides technical setup and limitations.
+
+## Select and copy text in photos
+
+Enable **Text Selection** in the viewer’s right-click menu. A **Text Selection Mode** banner appears at the top center. Photo recognition starts in the background after a short navigation delay, using **PP-OCRv6 tiny** locally. Ordinary browsing does not run OCR.
+
+Once recognition finishes, hovering recognized text shows an I-beam cursor. Drag to select characters or multiple lines; double-click to select a line. Press **Ctrl+C** or choose **Copy** from the right-click menu. With image text focused, **Ctrl+A** selects all recognized text in that photo. Copying confirms with **Copied**.
+
+Selection follows photo zoom and pan. Hold **Alt** while dragging to pan from a text region. **Esc** clears text selection first. The mode remains enabled when switching photos or videos, but videos are not recognized. Uncheck the menu item or return to the grid to end the mode.
+
+Recognition can miss or misread text, and character selection boundaries are approximate. OCR results are not added to metadata search. Batch OCR and extension OCR APIs are not included. Keep `ocr-runtime/` together with `people-runtime/`, which supplies the shared ONNX Runtime even if you do not use People grouping. See `ocr/README.md` in the release for setup and limitations.
 
 ## Share with nearby devices
 
@@ -141,8 +198,14 @@ Missing HEIC dependencies leave other supported formats available. The decoder b
 
 Extract the complete ZIP into a stable directory and run `./crPhotos` from that directory. Keep the executable together with its resource PAKs, `icudtl.dat`, `snapshot_blob.bin`, graphics libraries, and `crphotos_resources/` directory. The V8 snapshot must come from the same build as the application; it is required when running JavaScript extensions.
 
+For releases with People and OCR, also keep the complete `people-runtime/` and `ocr-runtime/` folders, including models, the OCR dictionary, runtime library, checksums and license files. The application does not download missing models automatically.
+
+The checked Linux x64 v1.5.0 package contains both runtimes. Its bundled ELF files require GLIBC symbols up to **2.27** and GLIBCXX symbols up to **3.4.22**. These are binary dependency requirements, not a guarantee that every distribution meeting them is supported; desktop libraries and drivers must also be compatible.
+
 The Linux archive is not a fully self-contained distribution. It uses system libraries for the desktop, fonts, graphics, audio, and networking, including GLib/GIO, NSS/NSPR, ATK, Pango/Cairo, X11/XCB, xkbcommon, GBM, D-Bus, and ALSA. HEIC additionally needs the runtime described above. Supported codecs and GPU acceleration depend on the installed environment.
 
 Example extension folders must be obtained separately if they are not included in the release archive. Install each unpacked package through **Settings → Extensions**. The executable alone does not install example extensions or configure upload credentials.
+
+Package contents vary by release. CRC and bundled model SHA256 checks verify file integrity; they do not replace testing on the target desktop environment.
 
 This README describes the current source implementation; available features depend on the version and runtime dependencies of the package you use.
