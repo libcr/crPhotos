@@ -1,0 +1,78 @@
+{
+  "apiVersion": 1,
+  "id": "search-image-text",
+  "version": "1.0.1",
+  "name": "Search Image Text",
+  "names": {
+    "zh-CN": "搜索图片文字",
+    "zh-HK": "搜尋圖片文字",
+    "zh-TW": "搜尋圖片文字",
+    "ar": "البحث في نص الصور",
+    "fr": "Rechercher du texte dans les images",
+    "fr-CA": "Rechercher du texte dans les images",
+    "ru": "Поиск текста на изображениях",
+    "es": "Buscar texto en imágenes",
+    "es-419": "Buscar texto en imágenes",
+    "pt-BR": "Buscar texto em imagens",
+    "pt-PT": "Pesquisar texto em imagens"
+  },
+  "description": "Recognize photo text locally and apply color tags using JSON rules.",
+  "descriptions": {
+    "zh-CN": "在本地识别照片文字，并按 JSON 规则设置颜色标签。",
+    "zh-HK": "在本機識別相片文字，並依 JSON 規則設定顏色標籤。",
+    "zh-TW": "在本機辨識相片文字，並依 JSON 規則設定顏色標籤。",
+    "ar": "التعرف على نص الصور محليًا وتطبيق علامات الألوان وفق قواعد JSON.",
+    "fr": "Reconnaître le texte des photos localement et appliquer des étiquettes de couleur selon des règles JSON.",
+    "fr-CA": "Reconnaître le texte des photos localement et appliquer des étiquettes de couleur selon des règles JSON.",
+    "ru": "Распознавание текста на фото локально и назначение цветных меток по правилам JSON.",
+    "es": "Reconoce texto de fotos localmente y aplica etiquetas de color mediante reglas JSON.",
+    "es-419": "Reconoce texto de fotos localmente y aplica etiquetas de color mediante reglas JSON.",
+    "pt-BR": "Reconhece texto em fotos localmente e aplica etiquetas de cor com regras JSON.",
+    "pt-PT": "Reconhece texto em fotografias localmente e aplica etiquetas de cor com regras JSON."
+  },
+  "ui": "dialog",
+  "modes": [
+    "selection",
+    "viewer"
+  ],
+  "permissions": [
+    "media.ocr",
+    "media.tags.write"
+  ],
+  "inputs": [
+    {
+      "id": "rules",
+      "type": "multiline",
+      "label": "Text-to-color rules (JSON)",
+      "labels": {
+        "zh-CN": "文字与颜色规则（JSON）",
+        "zh-HK": "文字與顏色規則（JSON）",
+        "zh-TW": "文字與顏色規則（JSON）",
+        "ar": "قواعد النص والألوان (JSON)",
+        "fr": "Règles texte-couleur (JSON)",
+        "fr-CA": "Règles texte-couleur (JSON)",
+        "ru": "Правила «текст — цвет» (JSON)",
+        "es": "Reglas de texto y color (JSON)",
+        "es-419": "Reglas de texto y color (JSON)",
+        "pt-BR": "Regras de texto e cor (JSON)",
+        "pt-PT": "Regras de texto e cor (JSON)"
+      },
+      "format": "json",
+      "default": "{\n  \"invoice\": \"yellow\",\n  \"meeting\": \"blue\"\n}",
+      "required": true,
+      "defaults": {
+        "zh-CN": "{\n  \"发票\": \"yellow\",\n  \"会议\": \"blue\"\n}",
+        "zh-HK": "{\n  \"發票\": \"yellow\",\n  \"會議\": \"blue\"\n}",
+        "zh-TW": "{\n  \"發票\": \"yellow\",\n  \"會議\": \"blue\"\n}",
+        "ar": "{\n  \"فاتورة\": \"yellow\",\n  \"اجتماع\": \"blue\"\n}",
+        "fr": "{\n  \"facture\": \"yellow\",\n  \"réunion\": \"blue\"\n}",
+        "fr-CA": "{\n  \"facture\": \"yellow\",\n  \"réunion\": \"blue\"\n}",
+        "ru": "{\n  \"счёт\": \"yellow\",\n  \"встреча\": \"blue\"\n}",
+        "es": "{\n  \"factura\": \"yellow\",\n  \"reunión\": \"blue\"\n}",
+        "es-419": "{\n  \"factura\": \"yellow\",\n  \"reunión\": \"blue\"\n}",
+        "pt-BR": "{\n  \"fatura\": \"yellow\",\n  \"reunião\": \"blue\"\n}",
+        "pt-PT": "{\n  \"fatura\": \"yellow\",\n  \"reunião\": \"blue\"\n}"
+      }
+    }
+  ]
+}

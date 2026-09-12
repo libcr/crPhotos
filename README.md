@@ -138,7 +138,7 @@ Once recognition finishes, hovering recognized text shows an I-beam cursor. Drag
 
 Selection follows photo zoom and pan. Hold **Alt** while dragging to pan from a text region. **Esc** clears text selection first. The mode remains enabled when switching photos or videos, but videos are not recognized. Uncheck the menu item or return to the grid to end the mode.
 
-Recognition can miss or misread text, and character selection boundaries are approximate. OCR results are not added to metadata search. Batch OCR and extension OCR APIs are not included. Keep `ocr-runtime/` together with `people-runtime/`, which supplies the shared ONNX Runtime even if you do not use People grouping. See `ocr/README.md` in the release for setup and limitations.
+Recognition can miss or misread text, and character selection boundaries are approximate. OCR results are not added to metadata search. Extensions can request photo OCR and use the results for batch tagging; the Search Image Text example demonstrates this workflow. Keep `ocr-runtime/` together with `people-runtime/`, which supplies the shared ONNX Runtime even if you do not use People grouping. See `ocr/README.md` in the release for setup and limitations.
 
 ## Share with nearby devices
 
@@ -154,14 +154,15 @@ Open **Settings → Extensions** and click **+ Add Extension**, then choose an u
 
 Each list item shows its icon, name, version, description, enable toggle, and configuration gear. Drag the left handle to reorder extensions; the saved order also applies to the selection toolbar, overflow menu, and viewer menu. Right-click an item and choose **Delete this extension** to remove the installed package and its configuration. The gear opens a JSON configuration editor; **Save** becomes available after an edit.
 
-Extensions can use a native processing dialog with media previews, progress, and text output. Double-click an output line associated with a file to select that line and enlarge its preview. **Cancel** stops pending work; the button changes to **Done** when processing finishes. Extensions can also run without a dialog and show a short completion toast.
+Extensions can use a native processing dialog with media previews, progress, and text output. An optional input form accepts text, JSON, or file/folder selections before Run; these values are supplied as `context.inputs`. Double-click an output line associated with a file to select that line and enlarge its preview. **Cancel** stops pending work; the button changes to **Done** when processing finishes. Extensions can also run without a dialog and show a short completion toast.
 
 The source tree provides these example packages under `crPhotos/extensions/examples/`:
 
 | Extension | Purpose |
 | --- | --- |
 | Copy File Path | Copies selected file paths without opening a dialog and shows a completion toast, such as “2 files copied”, for about three seconds |
-| Archive as zip | Saves selected originals into a ZIP at a location chosen in a native Save dialog, with progress and cancellation |
+| Archive as zip | Lets you choose a ZIP destination in the preset input form before Run, then compresses selected originals with progress and cancellation |
+| Search Image Text | Reads JSON keyword-to-color rules, recognizes text in selected photos locally, and assigns the first matching color tag |
 | Upload to Imgur | Uploads supported original files through HTTPS, with progress and returned links; requires your own API configuration |
 | Media Summary | Demonstrates metadata processing and dialog output |
 
@@ -169,9 +170,153 @@ Archive as zip creates a new archive or replaces the chosen destination after su
 
 The Imgur example accepts a Client ID or an existing OAuth access token. It does not provide an OAuth login or token-refresh flow. Credentials are stored locally in plaintext `config.json`. Uploads include original embedded metadata; cancelling cannot remove uploads already accepted by the service.
 
-For extension developers, the host uses V8 with a crPhotos-specific API. It supports declared permissions for selected-file access, HTTPS requests, POST/PUT uploads with progress, clipboard file paths, and saving ZIP archives. This is not a Chrome extension or Node.js environment: HTML/DOM, arbitrary shell commands, and arbitrary filesystem writes are not exposed. SVG icons and localized names, descriptions, and output are supported. See `crPhotos/extensions/README.md` in the source tree for the API and package format.
+For extension developers, the host uses V8 with a crPhotos-specific API. It supports declared permissions for selected-file access, photo OCR, color-tag changes, HTTPS requests, POST/PUT uploads with progress, clipboard file paths, and saving ZIP archives. This is not a Chrome extension or Node.js environment: HTML/DOM, arbitrary shell commands, and arbitrary filesystem writes are not exposed. SVG icons and localized names, descriptions, and output are supported. See `crPhotos/extensions/README.md` in the source tree for the API and package format.
 
 Default installation directories are `~/.config/crPhotos/extensions/` on Linux and `%LOCALAPPDATA%\crPhotos\extensions\` on Windows. An alternative directory can be selected with `--extensions-dir=/absolute/path/to/extensions`.
+
+### JavaScript extension API
+
+This reference describes the current host API. Use a build containing these APIs; older release packages may not support them. The full package specification and limits are documented in `crPhotos/extensions/README.md` in the source tree.
+
+Define an entry point in `main.js`:
+
+```js
+async function run(context, api) {
+  api.ui.output(`Items: ${context.items.length}`);
+}
+```
+
+The manifest declares `apiVersion: 1`, supported `modes` (`selection`, `viewer`), and `ui` (`dialog`, the default, or `none`). Scripts run in V8 on a worker. Await asynchronous host operations before returning.
+
+| Context field | Meaning |
+| --- | --- |
+| `context.mode` | `selection` or `viewer` |
+| `context.locale` | Current application UI locale |
+| `context.config` | Local extension configuration object |
+| `context.inputs` | Values collected by the preset input form |
+| `context.items` | Invocation snapshot of the selected media, or one item in viewer mode |
+
+Each item exposes `id`, `name`, `type` (`photo` or `video`), `size` (bytes), `width`, `height`, `duration` (seconds), `favorite`, and `tag` (English color name or `null`). Dimensions and duration may be zero when unknown. IDs are invocation-local strings: pass them back unchanged. Editing this snapshot does not change the library, and it does not refresh after a tag write.
+
+| API | Permission / behavior |
+| --- | --- |
+| `api.ui.output(text)` / `setOutput(text)` | Append a line / replace dialog output |
+| `api.ui.appendLine({text, itemId})` | Append a line associated with a media preview; `itemId` is optional |
+| `api.ui.setOutputLines(lines)` | Replace output with an array of `{text, itemId?}` records |
+| `api.ui.setProgress(completed, total)` | Set task progress; integer values, `total > 0`, `0 <= completed <= total` |
+| `api.ui.toast({message})` | Queue a completion toast lasting about three seconds; the last message wins and is shown only on success |
+| `api.media.readFile(itemId)` | `media.read`; synchronously returns original bytes as an `ArrayBuffer` |
+| `api.inputs.readFile(handle)` | Reads a file explicitly chosen in a `file` input; no `media.read` permission needed |
+| `await api.media.recognizeText(itemId)` | `media.ocr`; recognizes a photo and returns `{text, lines: [{text, confidence}], limited}` |
+| `await api.media.setTag(itemIds, color)` | `media.tags.write`; assigns/replaces a tag, returns whether anything changed |
+| `await api.media.clearTags(itemIds)` | `media.tags.write`; removes tags, returns whether anything changed |
+| `await fetch(url, options)` / `api.network.fetch(url, options)` | Requires the destination in manifest `networkOrigins`; restricted HTTPS requests |
+| `await api.network.upload(options)` | `media.upload` plus `networkOrigins`; streams an invocation file using POST or PUT |
+| `api.clipboard.copyFilePaths(itemIds)` | `clipboard.write`; queues file paths for copying after successful completion |
+| `await api.archive.saveZip(options)` | `archive.write`, dialog mode; saves invocation files to a chosen ZIP destination |
+
+`api.dialog` is an alias for `api.ui`. File reads share limits of 32 MiB per call and 64 MiB per invocation. Media APIs accept invocation IDs, not arbitrary paths. There is no DOM, Node.js, shell access, or general filesystem write API.
+
+### Runtime input form
+
+Declare up to eight inputs in the manifest. Nonempty inputs require dialog mode. Supported types are `text`, `multiline`, `file`, `saveFile`, and `folder`. `required` defaults to `true`; `format: "json"` validates text syntax but still supplies a string for the extension to parse.
+
+Example manifest for an OCR tagging extension:
+
+```json
+{
+  "id": "search-image-text",
+  "name": "Search Image Text",
+  "version": "1.0.1",
+  "apiVersion": 1,
+  "modes": ["selection", "viewer"],
+  "ui": "dialog",
+  "permissions": ["media.ocr", "media.tags.write"],
+  "inputs": [
+    {
+      "id": "rules",
+      "type": "multiline",
+      "label": "Text matching rules (JSON)",
+      "labels": {"zh-CN": "文本匹配规则（JSON）"},
+      "format": "json",
+      "default": "{\n  \"invoice\": \"yellow\",\n  \"meeting\": \"blue\"\n}",
+      "defaults": {
+        "zh-CN": "{\n  \"发票\": \"yellow\",\n  \"会议\": \"blue\"\n}"
+      }
+    }
+  ]
+}
+```
+
+`label` and `default` are English fallbacks. `labels` and `defaults` select an exact UI locale when present. Localized defaults apply to `text`, `multiline`, and suggested `saveFile` names. The shipped Search Image Text example includes all supported translations; color values remain English API identifiers in every language.
+
+The form enables Run when required values are valid. Inputs are not saved as configuration. Path inputs open native choosers and return opaque, invocation-scoped handles in `context.inputs`, not raw paths. An unselected optional path is `null`. Only `file` handles can be read by `api.inputs.readFile`; `folder` handles currently have no directory read/write operations.
+
+### Photo OCR and color tags
+
+Supported colors are `grey`, `blue`, `red`, `yellow`, `green`, `pink`, `purple`, `cyan`, and `orange`. Each media item has one tag. `setTag` replaces it and does not toggle it off when the same color is assigned again. Tag writes accept 1–4096 unique IDs per call, update the library and visible filters, and do not modify original files. Tag writes are unavailable in Trash.
+
+This minimal example tags photos containing “invoice”:
+
+```js
+async function run(context, api) {
+  const photos = context.items.filter(item => item.type === "photo");
+  if (!photos.length) return;
+  api.ui.setProgress(0, photos.length);
+  for (let index = 0; index < photos.length; ++index) {
+    const item = photos[index];
+    const result = await api.media.recognizeText(item.id);
+    if (result.text.toLowerCase().includes("invoice")) {
+      await api.media.setTag([item.id], "yellow");
+      api.ui.appendLine({text: `Tagged: ${item.name}`, itemId: item.id});
+    }
+    api.ui.setProgress(index + 1, photos.length);
+  }
+}
+```
+
+OCR runs locally using the installed OCR models and shared ONNX Runtime. It needs neither `media.read` nor network permission. Videos are unsupported; await each request before starting another. Empty results mean no text was recognized; `limited` indicates partial output. Missing runtime/models reject with `OcrRuntimeError`; other recognition failures use `OcrError`. OCR does not add text to metadata search or turn on viewer Text Selection Mode.
+
+The complete **Search Image Text** example parses the input rules, normalizes Unicode, case and whitespace, then uses literal substring matching. The first matching rule determines the tag; unmatched photos retain existing tags and videos are skipped. It also handles progress, per-photo failures and localized output. English users see `invoice` / `meeting` in the initial JSON, while Simplified Chinese users see `发票` / `会议`.
+
+### HTTPS and uploads
+
+Declare exact origins such as `"networkOrigins": ["https://api.imgur.com"]`; do not include paths or trailing slashes. `fetch` supports GET, HEAD, POST, PUT, PATCH, DELETE and OPTIONS. Options include `method`, string-valued `headers`, `body` (string, ArrayBuffer or typed array), `signal`, and `timeoutMs`. GET/HEAD cannot have a body.
+
+Responses expose `ok`, `status`, `statusText`, `url`, `headers` and single-use asynchronous `text()`, `json()` and `arrayBuffer()` methods. HTTP error statuses resolve normally, so check `response.ok`; transport and policy failures reject. Responses are buffered, with a 16 MiB limit. This subset has no cookies, response streams, FormData or Blob; explicit Authorization headers are supported. `AbortController` can cancel individual requests.
+
+For direct original-file uploads, call `api.network.upload` with `url`, `mediaId`, `method` (`POST` or `PUT`), and `bodyType` (`raw` or `multipart`). Optional fields include `headers`, `contentType` for raw uploads, `fieldName` and string-valued `fields` for multipart uploads, `signal`, `timeoutMs`, and `onProgress({loaded, total})`. Progress counts request-body bytes, not confirmed server-side storage. Direct uploads do not require `media.read`.
+
+### ZIP destination and cancellation
+
+Archive extensions declare `archive.write` and a save input such as:
+
+```json
+{
+  "id": "destination",
+  "type": "saveFile",
+  "label": "ZIP archive",
+  "extension": "zip",
+  "default": "Photos.zip"
+}
+```
+
+The user chooses a destination and confirms replacement before Run. The script then calls:
+
+```js
+const result = await api.archive.saveZip({
+  itemIds: context.items.map(item => item.id),
+  destination: context.inputs.destination,
+  onProgress({loaded, total}) {
+    api.ui.setOutput(`Compressing: ${loaded} / ${total} bytes`);
+  }
+});
+api.ui.setOutput(`Saved: ${result.path}`);
+```
+
+The result is `{path, files}`. `destination` is required and must be a ZIP `saveFile` handle from this invocation. The former ZIP-specific in-run Save dialog and `suggestedName` compatibility branch have been removed. One archive call is allowed per invocation, with 1–4096 unique item IDs. No `media.read` permission is needed.
+
+Cancel stops pending work but does not roll back completed tag changes or uploads already accepted by a server. ZIP output is committed only after successful compression; cancellation before replacement preserves an existing destination. Cancelling after replacement does not delete the completed ZIP. Completion toasts and queued clipboard writes are discarded on failure or cancellation. Use dialog mode for batch OCR; headless extensions have a 30-second total timeout.
 
 ## Appearance and desktop integration
 
