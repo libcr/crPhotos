@@ -1,6 +1,6 @@
 # crPhotos
 
-A desktop photo and video browser for your local folders, built on Chromium 150. Explore your collection in a masonry timeline, view photos and videos in one application, organize media with favorites, color tags and local face grouping, and select text directly in photos.
+A desktop photo and video browser for your local folders, built on Chromium 154. Explore your collection in a masonry timeline, view photos and videos in one application, organize media with favorites, color tags and local face grouping, select text directly in photos, and send photos and videos to nearby devices with Quick Share.
 
 Get crPhotos for Windows from the [Microsoft Store](https://apps.microsoft.com/store/detail/9NQL7VPP88ZJ?cid=DevShareMCLPCS).
 
@@ -147,6 +147,22 @@ Recognition can miss or misread text, and character selection boundaries are app
 Configure nearby sharing in Settings to discover devices on the local network or connect manually by address. Send selected files, review pairing and transfer approval prompts, choose a receive directory, and monitor or cancel transfers. Trusted devices can be remembered, with an optional setting to automatically accept their transfers.
 
 The **Trusted devices** window lists remembered devices and transfer statistics. It is modal to the main window; close it to resume browsing. The red delete icon forgets a device's trusted status.
+
+## Quick Share
+
+Send photos and videos to nearby Android devices using **Quick Share**, available alongside the existing **Share** action. Transfers are local and do not require a Google account or a cloud relay.
+
+- **From the grid:** select photos or videos and click the Quick Share icon in the selection toolbar.
+- **From the viewer:** right-click a photo or video and choose **Quick Share**, directly after **Text Selection**. This sends the item being viewed, independently of any grid selection.
+- Review the media previews, select a device, and click **Send**. Compare the verification code with the receiving device and approve reception there.
+
+The panel lists discovered devices with their names and device-type icons. Status appears above the device icons: discovery guidance when no send target is available, a device-selection hint when targets are ready, and the verification code during confirmation. Only the code itself is bold. During transfer, the same area shows transferred bytes, total bytes, and estimated time remaining on one line. A ring around the active device indicates progress; click that device to cancel. Closing the panel does not cancel an ongoing transfer.
+
+![Quick Share sending a selection of 12 media files, with previews, two nearby devices, a transfer progress ring, and transferred bytes and time remaining](Screenshot%20From%202026-10-17%2006-46-44.png)
+
+Configure **Quick Share** in Settings to enable reception, set the device name, and choose a receive directory. Incoming transfers show confirmation prompts. Quick Share discovery uses LAN and Bluetooth information; Bluetooth being enabled alone does not make every nearby device a send target. On Android, open Quick Share reception and use **Everyone** visibility if the device does not appear. Keeping both devices on the same local network provides the LAN transfer path.
+
+Quick Share uses the shared crQuickShare implementation. Available Bluetooth and Wi-Fi upgrade paths depend on the platform, adapters, network configuration, and receiving device. Linux LAN sending has been exercised with Android devices; compatibility across all devices and Windows hardware is not guaranteed. The remembered-device trust settings described above belong to the separate nearby **Share** flow.
 
 ## Extend crPhotos
 
