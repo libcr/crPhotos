@@ -1,8 +1,12 @@
 # crPhotos
 
-A desktop photo and video browser for your local folders, built on Chromium 154. Explore your collection in a masonry timeline, view photos and videos in one application, organize media with favorites, color tags and local face grouping, select text directly in photos, and send photos and videos to nearby devices with Quick Share.
+A desktop photo and video browser for your local folders, built on Chromium 156. Explore your collection in a masonry timeline, view photos and videos in one application, organize media with favorites, color tags and local face grouping, select text directly in photos, annotate images, capture photos and videos with a camera, and send photos and videos to nearby devices with Quick Share.
 
-Get crPhotos for Windows from the [Microsoft Store](https://apps.microsoft.com/store/detail/9NQL7VPP88ZJ?cid=DevShareMCLPCS).
+| Platform | Download |
+| --- | --- |
+| Windows | [Microsoft Store](https://apps.microsoft.com/store/detail/9NQL7VPP88ZJ?cid=DevShareMCLPCS) |
+| Linux | [GitHub Releases](https://github.com/libcr/crPhotos/releases) |
+| macOS | [GitHub Releases](https://github.com/libcr/crPhotos/releases) |
 
 ## Your collection, at a glance
 
@@ -15,6 +19,14 @@ Photo thumbnails show file size in the upper-right corner. Video thumbnails show
 The date beside **Timeline** follows the visible collection. When visible media have GPS coordinates that resolve to a city, the heading shows the date and city of the first matching item in visual order. If the first visible item has no location, later visible items are checked. If none matches, only the first visible item's date is shown.
 
 The timeline uses available capture dates, with MP4/MOV container creation time as a video fallback, then file creation time when no embedded date is available. Container dates can reflect an export rather than the original recording.
+
+## Local aesthetic scores and larger previews
+
+With the optional aesthetic model installed, crPhotos scores photos and sampled video frames locally using NIMA MobileNet. Nothing is uploaded. **Details** shows a photo's score or a video's **Average frame score** on a 1–10 scale; scores are cached and updated when source files change.
+
+Media with camera make/model metadata and a score above 5.3 can receive a two-column card in the timeline. The layout spaces these larger cards apart and keeps the collection order. Thumbnail cropping can change to fit the layout; original files and viewer images are unaffected. Scores estimate visual appearance, and video scores summarize sampled frames rather than motion, audio, or the entire clip.
+
+Keep `aesthetics-runtime/` beside the executable together with `people-runtime/`, which supplies the shared ONNX Runtime. Restart after installing the model. People scanning does not need to be enabled, and normal browsing remains available without the optional runtime.
 
 ## Build a library from your folders
 
@@ -73,6 +85,33 @@ Viewer deletion moves ordinary library files to crPhotos-managed Trash. **Viewin
 A directional bounce indicates the beginning or end of the collection. Switching items preserves fullscreen, returning to the grid keeps browsing context, and videos return to the beginning when playback finishes.
 
 ![Spring flowers in the crPhotos five-column Timeline, with the date and Taizhou city heading](Screenshot%20From%202026-09-09%2000-41-04.png)
+
+## Annotate photos
+
+Open a photo and choose **Annotate**, directly below **Text Selection** in the right-click menu, after the original image has loaded. An **Annotation Mode** indicator appears above the image. The filename stays visible, and entering the mode preserves zoom and position.
+
+The floating toolbar overlays the image without shrinking it. Drag either dotted handle on its second row to reposition it. That row shows the properties for the active tool or selected annotation; each tool remembers its settings across application restarts.
+
+![crPhotos Annotation Mode with a floating two-row toolbar, a rectangle, freehand underline, numbered markers, a pointing arrow, editable text, and a blurred image region](Screenshot%20From%202026-11-15%2015-01-41.png)
+
+| Tool | What you can do |
+| --- | --- |
+| **Shapes** | Draw rectangles, ellipses, lines, straight arrows, and curved arrows. Adjust color and line width, fill closed shapes, and round rectangle corners. Hold Shift for squares, circles, or 45-degree line/arrow increments. |
+| **Curved arrow** in Shapes | Reshape a cubic Bézier arrow by moving its endpoints and two control points. The arrowhead follows the curve and scales with line width. |
+| **Highlighter** | Draw a smooth, broad translucent stroke using multiply blending to keep dark text visible. Adjust color, width, opacity, and end radius; hold Shift for a straight stroke. |
+| **Number marker** | Click to place an automatically numbered circular badge, or drag while placing it to add a pointing arrow. Double-click a badge to change its number. Deleting a badge leaves other numbers unchanged. |
+| **Freehand** | Draw a smooth stroke along the pointer path, then adjust its color, width, or size. |
+| **Text** | Add multiline text with a choice of installed fonts, size, and color. Double-click to edit it again. The input bubble stays open until its **Done** button applies the edit or its top-right close button discards it. |
+| **Gaussian blur** | Drag out a rectangular blur region, then move or resize it. Change strength in the second row or scroll over the selected region. Foreground text and arrows remain sharp. |
+| **Select and move** | Select, move, resize, or restyle an annotation. Unselected hollow shapes respond near their outlines, leaving their empty interiors available for image navigation or selecting an underlying object. |
+
+On empty image areas in **Select and move**, double-click toggles between 1:1 and fitting the image, and left-drag pans an enlarged image. Annotation objects and handles take priority; double-clicking text or a badge edits it. The fit button also toggles fit and 1:1. Hold Space and drag, or use the middle mouse button, to pan while using other tools.
+
+Use **Undo** and **Redo**, or **Ctrl/Command+Z** and **Ctrl/Command+Shift+Z**. **Delete/Backspace** removes the selected annotation. Arrow keys move it by one screen pixel, or ten with Shift. Consecutive keyboard nudges and blur-wheel adjustments are grouped into undo steps. Editing history lasts for the current session; remembered tool settings do not save annotation objects.
+
+Choose **Done** to return to viewing. Unsaved changes open a bubble pointing to that button, with **Discard changes** and a **Save a copy** split button. The main save action always creates a copy. For supported PNG/JPEG originals, the dropdown also offers **Save directly (overwrite)**, which runs immediately without changing the main button label. Dismiss the bubble to continue editing; canceling the file picker or a failed save also keeps the annotations editable. **Ctrl/Command+S** saves a copy without leaving the editor.
+
+Exports are full-resolution, flattened PNG or JPEG images. PNG retains transparency; JPEG uses a white background. Export uses SDR sRGB and does not preserve original camera metadata or editable annotation layers. Direct saving replaces the original and applies the same export behavior. GIF editing pauses playback and exports the current frame as a still image. Text Selection and photo navigation are suspended during annotation editing.
 
 ## Select, organize, and inspect
 
@@ -142,6 +181,14 @@ Selection follows photo zoom and pan. Hold **Alt** while dragging to pan from a 
 
 Recognition can miss or misread text, and character selection boundaries are approximate. OCR results are not added to metadata search. Extensions can request photo OCR and use the results for batch tagging; the Search Image Text example demonstrates this workflow. Keep `ocr-runtime/` together with `people-runtime/`, which supplies the shared ONNX Runtime even if you do not use People grouping. See `ocr/README.md` in the release for setup and limitations.
 
+## Capture photos and videos
+
+Use the camera button beside the application name to open **Camera**. Choose a camera, preview it, and capture JPEG photos or record video with the selected microphone. Photo resolution follows the camera's capture stream. Refresh the device list after connecting a camera or microphone or changing system permissions.
+
+The microphone level meter is active while Camera is open; audio is saved only during recording. Microphone selection and automatic volume processing are remembered. Recording uses hardware encoding when available, with a software fallback; the resulting file is MP4 or WebM depending on the available encoder. Device, codec, and driver support vary.
+
+The initial save location is `Pictures/crPhotos Camera` under your home folder; change it with **Save folder**. Successfully saved photos and videos are added to the library. Closing Camera finishes an active recording and releases the devices. Capture and saving stay local.
+
 ## Share with nearby devices
 
 Configure nearby sharing in Settings to discover devices on the local network or connect manually by address. Send selected files, review pairing and transfer approval prompts, choose a receive directory, and monitor or cancel transfers. Trusted devices can be remembered, with an optional setting to automatically accept their transfers.
@@ -153,7 +200,7 @@ The **Trusted devices** window lists remembered devices and transfer statistics.
 Send photos and videos to nearby Android devices using **Quick Share**, available alongside the existing **Share** action. Transfers are local and do not require a Google account or a cloud relay.
 
 - **From the grid:** select photos or videos and click the Quick Share icon in the selection toolbar.
-- **From the viewer:** right-click a photo or video and choose **Quick Share**, directly after **Text Selection**. This sends the item being viewed, independently of any grid selection.
+- **From the viewer:** right-click a photo or video and choose **Quick Share**. This sends the item being viewed, independently of any grid selection.
 - Review the media previews, select a device, and click **Send**. Compare the verification code with the receiving device and approve reception there.
 
 The panel lists discovered devices with their names and device-type icons. Status appears above the device icons: discovery guidance when no send target is available, a device-selection hint when targets are ready, and the verification code during confirmation. Only the code itself is bold. During transfer, the same area shows transferred bytes, total bytes, and estimated time remaining on one line. A ring around the active device indicates progress; click that device to cancel. Closing the panel does not cancel an ongoing transfer.
@@ -338,7 +385,7 @@ Cancel stops pending work but does not roll back completed tag changes or upload
 
 ## Appearance and desktop integration
 
-Choose system, light, or dark appearance. The interface supports English plus Simplified Chinese, Traditional Chinese (Hong Kong and Taiwan), Arabic, French (France and Canada), Russian, Spanish (Spain and Latin America), and Portuguese (Brazil and Portugal).
+Choose system, light, or dark appearance. The interface supports English, Japanese, Korean, Simplified Chinese, Traditional Chinese (Hong Kong and Taiwan), Arabic, French (France and Canada), Russian, Spanish (Spain and Latin America), and Portuguese (Brazil and Portugal).
 
 On Linux, select **Install on device** from the application menu to create a launcher and icon for the current user. The launcher points to the current executable; keep the extracted application directory in a stable location, or repeat the action after moving it. Installation reports success or failure in a notification bubble.
 
@@ -361,7 +408,7 @@ Missing HEIC dependencies leave other supported formats available. The decoder b
 
 Extract the complete ZIP into a stable directory and run `./crPhotos` from that directory. Keep the executable together with its resource PAKs, `icudtl.dat`, `snapshot_blob.bin`, graphics libraries, and `crphotos_resources/` directory. The V8 snapshot must come from the same build as the application; it is required when running JavaScript extensions.
 
-For releases with People and OCR, also keep the complete `people-runtime/` and `ocr-runtime/` folders, including models, the OCR dictionary, runtime library, checksums and license files. The application does not download missing models automatically.
+For releases with People and OCR, also keep the complete `people-runtime/` and `ocr-runtime/` folders, including models, the OCR dictionary, runtime library, checksums and license files. Keep `aesthetics-runtime/` as well when included for local scoring. Current runtime preparation uses ONNX Runtime **1.32.0**, shared by all three features. The application does not download missing models automatically.
 
 The checked Linux x64 v1.5.0 package contains both runtimes. Its bundled ELF files require GLIBC symbols up to **2.27** and GLIBCXX symbols up to **3.4.22**. These are binary dependency requirements, not a guarantee that every distribution meeting them is supported; desktop libraries and drivers must also be compatible.
 
